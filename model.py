@@ -153,24 +153,6 @@ def create_model(inputsX, inputsY, a):
     with tf.name_scope("fake_discriminator_exclusiveY2Y"):
         with tf.variable_scope("discriminator_exclusiveY2X", reuse=tf.AUTO_REUSE):
             predict_fake_exclusiveY2X = create_discriminator(niY, outputs_exclusiveY2X, a, 'fake_discriminator_exclusiveY2Y_discriminator_exclusiveY2X_reuse')
-#   return Model(inputs=[niX, niY], outputs=[
-#           predict_realX2Y,
-#           predict_realY2X,
-#           predict_fakeX2Y,
-#           predict_fakeY2X,
-#           sR_X2Y,
-#           sR_Y2X,
-#           eR_X2Y,
-#           eR_Y2X,
-#           outputsX2Y,
-#           outputsY2X,
-#           outputsX2Yp,
-#           outputsY2Xp,
-#           outputs_exclusiveX2Y,
-#           outputs_exclusiveY2X,
-#           auto_outputX,
-#           auto_outputY
-#       ])
 
  ######### LOSSES
 
@@ -368,10 +350,10 @@ def create_model(inputsX, inputsY, a):
         predict_realY2X=predict_realY2X.outputs,
         predict_fakeX2Y=predict_fakeX2Y.outputs,
         predict_fakeY2X=predict_fakeY2X.outputs,
-        im_swapped_X=im_swapped_X,
-        im_swapped_Y=im_swapped_Y,
-        sel_auto_X=sel_auto_X,
-        sel_auto_Y=sel_auto_Y,
+        im_swapped_X=im_swapped_X.outputs,
+        im_swapped_Y=im_swapped_Y.outputs,
+        sel_auto_X=sel_auto_X.outputs,
+        sel_auto_Y=sel_auto_Y.outputs,
         sR_X2Y=sR_X2Y.outputs,
         sR_Y2X=sR_Y2X.outputs,
         eR_X2Y=eR_X2Y.outputs,
