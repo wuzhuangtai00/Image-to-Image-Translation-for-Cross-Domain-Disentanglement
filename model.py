@@ -172,7 +172,7 @@ def create_model(inputsX, inputsY, a):
 #           auto_outputY
 #       ])
 
-    ######### LOSSES
+ ######### LOSSES
 
     __auto_outputX = auto_outputX.outputs
     __auto_outputY = auto_outputY.outputs
@@ -197,7 +197,7 @@ def create_model(inputsX, inputsY, a):
         alpha = tf.random_uniform(shape=[a.batch_size,1], minval=0., maxval=1.)
         differences = tf.reshape(__outputsX2Y,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsX, [-1,OUTPUT_DIM]) + (alpha*differences)
-        gradients = tf.gradients(create_discriminator(niX, tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]),a).outputs, [interpolates])[0]
+        gradients = tf.gradients(create_discriminator(niX, tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]),a, 'discriminatorX2Y_loss').outputs, [interpolates])[0]
         slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1]))
         gradient_penalty = tf.reduce_mean((slopes-1.)**2)
         discrimX2Y_loss += LAMBDA*gradient_penalty
@@ -210,7 +210,7 @@ def create_model(inputsX, inputsY, a):
         alpha = tf.random_uniform(shape=[a.batch_size,1], minval=0., maxval=1.)
         differences = tf.reshape(__outputsY2X,[-1,OUTPUT_DIM])-tf.reshape(targetsY,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsY,[-1,OUTPUT_DIM]) + (alpha*differences)
-        gradients = tf.gradients(create_discriminator(niY, tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]),a).outputs, [interpolates])[0]
+        gradients = tf.gradients(create_discriminator(niY, tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]),a, 'discriminatorY2X_loss').outputs, [interpolates])[0]
         slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1]))
         gradient_penalty = tf.reduce_mean((slopes-1.)**2)
         discrimY2X_loss += LAMBDA*gradient_penalty
@@ -223,7 +223,7 @@ def create_model(inputsX, inputsY, a):
         alpha = tf.random_uniform(shape=[a.batch_size,1], minval=0., maxval=1.)
         differences = tf.reshape(__outputs_exclusiveX2Y,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsX,[-1,OUTPUT_DIM]) + (alpha*differences)
-        gradients = tf.gradients(create_discriminator(niX, tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]),a).outputs, [interpolates])[0]
+        gradients = tf.gradients(create_discriminator(niX, tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]),a, 'discriminator_exclusiveX2Y_loss').outputs, [interpolates])[0]
         slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1]))
         gradient_penalty = tf.reduce_mean((slopes-1.)**2)
         discrim_exclusiveX2Y_loss += LAMBDA*gradient_penalty
@@ -236,7 +236,7 @@ def create_model(inputsX, inputsY, a):
         alpha = tf.random_uniform(shape=[a.batch_size,1], minval=0., maxval=1.)
         differences = tf.reshape(__outputs_exclusiveY2X,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsX,[-1,OUTPUT_DIM]) + (alpha*differences)
-        gradients = tf.gradients(create_discriminator(niX,tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]),a).outputs, [interpolates])[0]
+        gradients = tf.gradients(create_discriminator(niX,tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]),a, 'discriminator_exclusiveY2X_loss').outputs, [interpolates])[0]
         slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1]))
         gradient_penalty = tf.reduce_mean((slopes-1.)**2)
         discrim_exclusiveY2X_loss += LAMBDA*gradient_penalty
@@ -364,18 +364,18 @@ def create_model(inputsX, inputsY, a):
     global_step = tf.trainingn.get_or_create_global_step()
     incr_global_step = tf.assign(global_step, global_step+1)
     return Model(
-        predict_realX2Y=predict_realX2Y,
-        predict_realY2X=predict_realY2X,
-        predict_fakeX2Y=predict_fakeX2Y,
-        predict_fakeY2X=predict_fakeY2X,
-        im_swapped_X=im_swapped_X,
-        im_swapped_Y=im_swapped_Y,
-        sel_auto_X=sel_auto_X,
-        sel_auto_Y=sel_auto_Y,
-        sR_X2Y=sR_X2Y,
-        sR_Y2X=sR_Y2X,
-        eR_X2Y=eR_X2Y,
-        eR_Y2X=eR_Y2X,
+        predict_realX2Y=predict_realX2Y.outputs,
+        predict_realY2X=predict_realY2X.outputs,
+        predict_fakeX2Y=predict_fakeX2Y.outputs,
+        predict_fakeY2X=predict_fakeY2X.outputs,
+#        im_swapped_X=im_swapped_X,
+#        im_swapped_Y=im_swapped_Y,
+#        sel_auto_X=sel_auto_X,
+#        sel_auto_Y=sel_auto_Y,
+        sR_X2Y=sR_X2Y.outputs,
+        sR_Y2X=sR_Y2X.outputs,
+        eR_X2Y=eR_X2Y.outputs,
+        eR_Y2X=eR_Y2X.outputs,
         discrimX2Y_loss=ema.average(discrimX2Y_loss),
         discrimY2X_loss=ema.average(discrimY2X_loss),
         genX2Y_loss=ema.average(genX2Y_loss),
@@ -384,15 +384,15 @@ def create_model(inputsX, inputsY, a):
         discrim_exclusiveY2X_loss=ema.average(discrim_exclusiveY2X_loss),
         gen_exclusiveX2Y_loss=ema.average(gen_exclusiveX2Y_loss),
         gen_exclusiveY2X_loss=ema.average(gen_exclusiveY2X_loss),
-        outputsX2Y=outputsX2Y,
-        outputsY2X=outputsY2X,
-        outputsX2Yp=outputsX2Yp,
-        outputsY2Xp=outputsY2Xp,
-        outputs_exclusiveX2Y=outputs_exclusiveX2Y,
-        outputs_exclusiveY2X=outputs_exclusiveY2X,
-        auto_outputX = auto_outputX,
+        outputsX2Y=outputsX2Y.outputs,
+        outputsY2X=outputsY2X.outputs,
+        outputsX2Yp=outputsX2Yp.outputs,
+        outputsY2Xp=outputsY2Xp.outputs,
+        outputs_exclusiveX2Y=outputs_exclusiveX2Y.outputs,
+        outputs_exclusiveY2X=outputs_exclusiveY2X.outputs,
+        auto_outputX = auto_outputX.outputs,
         autoencoderX_loss=ema.average(autoencoderX_loss),
-        auto_outputY = auto_outputY,
+        auto_outputY = auto_outputY.outputs,
         autoencoderY_loss=ema.average(autoencoderY_loss),
         feat_recon_loss=ema.average(feat_recon_loss),
         code_recon_loss=ema.average(code_recon_loss),
