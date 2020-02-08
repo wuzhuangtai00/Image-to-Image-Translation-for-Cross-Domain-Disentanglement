@@ -16,7 +16,7 @@ import tensorflow as tf
 import tensorlayer as tl
 from tensorlayer.layers import *
 
-def create_generator_decoder(sR, eR, out, a, pre):
+def create_generator_decoder(sR, eR, out, a, pre, noise=True):
 	W_init = tf.random_normal_initializer(0, 0.02)
 	g_init = tf.random_normal_initializer(1.0, 0.02)
 
@@ -28,8 +28,9 @@ def create_generator_decoder(sR, eR, out, a, pre):
 	tmp = tf.concat([sR.outputs, z],axis=3)
 
 	if a.mode == "train":
-		inoise = tf.random_normal(tmp.shape, mean=0.0, stddev=a.noise)
-		tmp += inoise
+		if noise:
+			inoise = tf.random_normal(tmp.shape, mean=0.0, stddev=a.noise)
+			tmp += inoise
 
 #	ni = tf.nn.relu(ni)
 	ni = InputLayer(tmp, name=pre+'_input')
