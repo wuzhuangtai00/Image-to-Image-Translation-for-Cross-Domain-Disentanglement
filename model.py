@@ -128,12 +128,12 @@ def create_model(inputsX, inputsY, a):
 
     ######### VISUAL ANALOGIES
     # This is only for visualization (visual analogies), not used in training loss
-    # with tf.name_scope("image_swapper_X"):
-    #    im_swapped_X,sel_auto_X = create_visual_analogy(sR_X2Y, eR_X2Y,
-                                                # auto_outputX,inputsX,'Y2X', a)
-    # with tf.name_scope("image_swapper_Y"):
-    #    im_swapped_Y,sel_auto_Y = create_visual_analogy(sR_Y2X, eR_Y2X,
-                                                #  auto_outputY,inputsY,'X2Y', a)
+    with tf.name_scope("image_swapper_X"):
+       im_swapped_X,sel_auto_X = create_visual_analogy(sR_X2Y, eR_X2Y,
+                                                auto_outputX,inputsX,'Y2X', a)
+    with tf.name_scope("image_swapper_Y"):
+       im_swapped_Y,sel_auto_Y = create_visual_analogy(sR_Y2X, eR_Y2X,
+                                                 auto_outputY,inputsY,'X2Y', a)
 ######### EXCLUSIVE REPRESENTATION
     # Create generators/discriminators for exclusive representation
     with tf.variable_scope("generator_exclusiveX2Y_decoder"):
@@ -203,7 +203,7 @@ def create_model(inputsX, inputsY, a):
         discrimX2Y_loss += LAMBDA*gradient_penalty
 
     with tf.name_scope("generatorY2X_loss"):
-        genY2X_loss_GAN = -tf.reduce_mean(predict_fakeY2X)
+        genY2X_loss_GAN = -tf.reduce_mean(__predict_fakeY2X)
         genY2X_loss = genY2X_loss_GAN * a.gan_weight
     with tf.name_scope("discriminatorY2X_loss"):
         discrimY2X_loss = tf.reduce_mean(__predict_fakeY2X) - tf.reduce_mean(__predict_realY2X)
@@ -251,8 +251,8 @@ def create_model(inputsX, inputsY, a):
     with tf.name_scope("code_recon_loss"):
         code_sR_X2Y_recon_loss = tf.reduce_mean(tf.abs(sR_X2Y_recon.outputs-sR_X2Y.outputs))
         code_sR_Y2X_recon_loss = tf.reduce_mean(tf.abs(sR_Y2X_recon.outputs-sR_Y2X.outputs))
-        code_eR_X2Y_recon_loss = tf.reduce_mean(tf.abs(eR_X2Y_recon.outputs-z))
-        code_eR_Y2X_recon_loss = tf.reduce_mean(tf.abs(eR_Y2X_recon.outputs-z))
+        code_eR_X2Y_recon_loss = tf.reduce_mean(tf.abs(eR_X2Y_recon.outputs-z.outputs))
+        code_eR_Y2X_recon_loss = tf.reduce_mean(tf.abs(eR_Y2X_recon.outputs-z.outputs))
         code_recon_loss = a.l1_weight*(code_sR_X2Y_recon_loss + code_sR_Y2X_recon_loss + code_eR_X2Y_recon_loss + code_eR_Y2X_recon_loss)
 
     ######### OPTIMIZERS
@@ -361,17 +361,17 @@ def create_model(inputsX, inputsY, a):
                                discrim_exclusiveX2Y_loss, discrim_exclusiveY2X_loss,
                                gen_exclusiveX2Y_loss, gen_exclusiveY2X_loss])
 
-    global_step = tf.trainingn.get_or_create_global_step()
+    global_step = tf.train.get_or_create_global_step()
     incr_global_step = tf.assign(global_step, global_step+1)
     return Model(
         predict_realX2Y=predict_realX2Y.outputs,
         predict_realY2X=predict_realY2X.outputs,
         predict_fakeX2Y=predict_fakeX2Y.outputs,
         predict_fakeY2X=predict_fakeY2X.outputs,
-#        im_swapped_X=im_swapped_X,
-#        im_swapped_Y=im_swapped_Y,
-#        sel_auto_X=sel_auto_X,
-#        sel_auto_Y=sel_auto_Y,
+        im_swapped_X=im_swapped_X,
+        im_swapped_Y=im_swapped_Y,
+        sel_auto_X=sel_auto_X,
+        sel_auto_Y=sel_auto_Y,
         sR_X2Y=sR_X2Y.outputs,
         sR_Y2X=sR_Y2X.outputs,
         eR_X2Y=eR_X2Y.outputs,
@@ -404,3 +404,30 @@ def create_model(inputsX, inputsY, a):
                        genY2X_train, autoencoderX_train, autoencoderY_train,code_recon_train,
                        gen_exclusiveX2Y_train,gen_exclusiveY2X_train,feat_recon_train),
     )
+def create_visual_analogy(__sR, __eR, auto_output, inputs, which_direction, a):
+    sR=__sR.outputs
+    eR=__eR.outputs
+    swapScoreBKG = 0
+    sR_Swap = []   
+    eR_Swap = []
+    sel_auto = []
+
+    for i in range(0,a.batch_size):
+        s_curr = tf.reshape(sR[i,:],[sR.shape[1],sR.shape[2],sR.shape[3]])
+        # Take a random image from the batch, make sure it is different from current
+        bkg_ims_idx = random.randint(0,a.batch_size-1)
+        while bkg_ims_idx == i:
+            bkg_ims_idx = random.randint(0,a.batch_size-1)
+        ex_rnd = tf.reshape(eR[bkg_ims_idx,:],[eR.shape[1]])
+        sR_Swap.append(s_curr)
+        eR_Swap.append(ex_rnd)
+        # Store also selected reference image for visualization
+        sel_auto.append(inputs[bkg_ims_idx,:])
+
+    with tf.variable_scope("generator" + which_direction + "_decoder", reuse=tf.AUTO_REUSE):
+        out_channels = int(auto_output.outputs.get_shape()[-1])
+        im_swapped = create_generator_decoder(InputLayer(tf.stack(sR_Swap), name='djdj1'),
+                                                    InputLayer(tf.stack(eR_Swap), name='djdj2'),
+                                                    out_channels, a, 'djdj3')
+                                                        
+    return im_swapped, tf.stack(sel_auto)
