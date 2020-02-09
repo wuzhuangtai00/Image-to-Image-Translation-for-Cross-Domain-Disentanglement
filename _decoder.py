@@ -16,13 +16,6 @@ import tensorflow as tf
 import tensorlayer as tl
 from tensorlayer.layers import *
 
-def Batch(ni, pre, num):
-	g_init = tf.random_normal_initializer(1.0, 0.02)
-	inputs = ni.outputs
-	tmp = tf.layers.batch_normalization(inputs, axis=3, epsilon=1e-5, momentum=0.1, training=True, gamma_initializer=g_init)
-	tmp = tf.nn.relu(tmp)
-	return InputLayer(tmp, name=pre+'Batch'+num)
-
 def create_generator_decoder(sR, eR, out, a, pre, noise=True):
 	W_init = tf.random_normal_initializer(0, 0.02)
 	g_init = tf.random_normal_initializer(1.0, 0.02)
@@ -39,23 +32,44 @@ def create_generator_decoder(sR, eR, out, a, pre, noise=True):
 			inoise = tf.random_normal(tmp.shape, mean=0.0, stddev=a.noise)
 			tmp += inoise
 
+#	ni = tf.nn.relu(ni)
 	ni = InputLayer(tmp, name=pre+'_input')
 	nn = DeConv2d(ni, a.ngf * 8, filter_size=(4, 4), strides=(2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv2d1')
-	nn = Batch(nn, pre, '1')
-#	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch1')
+	print('[TL]', end = ''),
+	print(nn.outputs)
+	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch1')
+	print('[TL]', end = ''),
+	print(nn.outputs)
 	if a.mode == "train":
 		nn = DropoutLayer(nn, keep=0.5, name=pre+'_Dropout1', is_fix = True)
+		print('[TL]', end = ''),
+		print(nn.outputs)
+#	nn = tf.nn.relu(nn)
 	nn = DeConv2d(nn, a.ngf * 4, filter_size=(4, 4), strides=(2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv2d2')
-	nn = Batch(nn, pre, '2')
-#	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch2')
+	print('[TL]', end = ''),
+	print(nn.outputs)
+	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch2')
 	if a.mode == "train":
 		nn = DropoutLayer(nn, keep=0.5, name=pre+'_Dropout2', is_fix = True)
+		print('[TL]', end = ''),
+		print(nn.outputs)
+#	nn = tf.nn.relu(nn)
 	nn = DeConv2d(nn, a.ngf * 2, filter_size=(4, 4), strides=(2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv2d3')
-	nn = Batch(nn, pre, '3')
-#	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch3')
+	print('[TL]', end = ''),
+	print(nn.outputs)
+	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch3')
+	print('[TL]', end = ''),
+	print(nn.outputs)
+	#	nn = tf.nn.relu(nn)
 	nn = DeConv2d(nn, a.ngf, filter_size=(4, 4), strides=(2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv2d4')
-	nn = Batch(nn, pre, '4')
-#	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch4')
+	print('[TL]', end = ''),
+	print(nn.outputs)
+	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch4')
+	print('[TL]', end = ''),
+	print(nn.outputs)
+#	nn = tf.nn.relu(nn)
 	nn = DeConv2d(nn, out, filter_size=(4, 4), strides=(2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv2d5')
+	print('[TL]', end = ''),
+	print(nn.outputs)
 	
 	return InputLayer(tf.tanh(nn.outputs), name=pre+'_ans')

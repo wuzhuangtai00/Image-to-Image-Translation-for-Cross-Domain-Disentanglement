@@ -20,13 +20,6 @@ from tensorlayer.layers import *
 def _reverse_grad(unused_op, grad):
 	return -1.0*grad
 
-def Batch(ni, pre, num):
-	g_init = tf.random_normal_initializer(1.0, 0.02)
-	inputs = ni.outputs
-	tmp = tf.layers.batch_normalization(inputs, axis=3, epsilon=1e-5, momentum=0.1, training=True, gamma_initializer=g_init)
-	tmp = tf.nn.relu(tmp)
-	return InputLayer(tmp, name=pre+'Batch'+num)
-
 def create_generator_decoder_exclusive(eR, out, a, pre):
 	W_init = tf.random_normal_initializer(0, 0.02)
 	g_init = tf.random_normal_initializer(1.0, 0.02)
@@ -45,22 +38,18 @@ def create_generator_decoder_exclusive(eR, out, a, pre):
 	ni = tf.nn.relu(ni)
 	nn = InputLayer(ni, name=pre+'_Input')
 	nn = DeConv2d(nn, a.ngf * 8, (4, 4), (2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv1')
-	nn = Batch(nn, pre, '1')
-#	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch1')
+	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch1')
 	nn = DropoutLayer(nn, keep=0.5, name=pre+'_Drop1', is_fix = True)
 #	nn = tf.nn.relu(nn)
 	nn = DeConv2d(nn, a.ngf * 4, (4, 4), (2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv2')
-	nn = Batch(nn, pre, '2')
-#	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch2')
+	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch2')
 	nn = DropoutLayer(nn, keep=0.5, name=pre+'_Drop2', is_fix = True)
 #	nn = tf.nn.relu(nn)
 	nn = DeConv2d(nn, a.ngf * 2, (4, 4), (2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv3')
-	nn = Batch(nn, pre, '3')
-#	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch3')
+	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch3')
 #	nn = tf.nn.relu(nn)
 	nn = DeConv2d(nn, a.ngf, (4, 4), (2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv4')
-	nn = Batch(nn, pre, '4')
-#	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch4')
+	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch4')
 #	nn = tf.nn.relu(nn)
 	nn = DeConv2d(nn, out, (4, 4), (2, 2), padding='SAME', W_init=W_init, name=pre+'_DeConv5')
 
