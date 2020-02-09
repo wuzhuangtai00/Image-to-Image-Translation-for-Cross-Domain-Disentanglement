@@ -577,6 +577,7 @@ def main():
             
 
     print('end here\n\n\n\n\n')
+    
     if a.checkpoint is not None:
         print("loading model from checkpoint")
         checkpoint = tf.train.latest_checkpoint(a.checkpoint)
