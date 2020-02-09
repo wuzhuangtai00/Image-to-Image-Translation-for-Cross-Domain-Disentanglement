@@ -573,11 +573,8 @@ def main():
     sv = tf.train.Supervisor(logdir=logdir, save_summaries_secs=0, saver=None)
     with sv.managed_session(config=tf.ConfigProto(
         allow_soft_placement=True, log_device_placement=True)) as sess:
-            print("parameter_count =", sess.run(parameter_count))
-                
-
-        print('end here\n\n\n\n\n')
-        
+        print("parameter_count =", sess.run(parameter_count))
+                        
         if a.checkpoint is not None:
             print("loading model from checkpoint")
             checkpoint = tf.train.latest_checkpoint(a.checkpoint)
