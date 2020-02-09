@@ -41,7 +41,7 @@ def create_generator_decoder(sR, eR, out, a, pre, noise=True):
 	print('[TL]', end = ''),
 	print(nn.outputs)
 	if a.mode == "train":
-		nn = DropoutLayer(nn, keep=0.5, name=pre+'_Dropout1')
+		nn = DropoutLayer(nn, keep=0.5, name=pre+'_Dropout1', is_fix = True)
 		print('[TL]', end = ''),
 		print(nn.outputs)
 #	nn = tf.nn.relu(nn)
@@ -50,7 +50,7 @@ def create_generator_decoder(sR, eR, out, a, pre, noise=True):
 	print(nn.outputs)
 	nn = BatchNormLayer(nn, act=tf.nn.relu, gamma_init=g_init, name=pre+'_Batch2')
 	if a.mode == "train":
-		nn = DropoutLayer(nn, keep=0.5, name=pre+'_Dropout2')
+		nn = DropoutLayer(nn, keep=0.5, name=pre+'_Dropout2', is_fix = True)
 		print('[TL]', end = ''),
 		print(nn.outputs)
 #	nn = tf.nn.relu(nn)

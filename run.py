@@ -641,7 +641,9 @@ def main():
                 if should(a.display_freq):
                     fetches["display"] = display_fetches
 
+                print("!!!!!!!!!!!!!!!!!!!!!!!!Start")
                 results = sess.run(fetches, options=options, run_metadata=run_metadata)
+                print("!!!!!!!!!!!!!!!!!!!!!!!!End")
 
                 if should(a.summary_freq):
                     print("recording summary")
