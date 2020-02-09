@@ -330,9 +330,9 @@ def create_model(inputsX, inputsY, a):
         code_recon_grads_and_vars = code_recon_optim.compute_gradients(code_recon_loss, var_list=code_recon_tvars)
         code_recon_train = code_recon_optim.apply_gradients(code_recon_grads_and_vars)
 
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    f1 = open('out.txt', 'w')
     for var in tf.trainable_variables():
-        print(var)
+        f1.write(var)
 
 
 
