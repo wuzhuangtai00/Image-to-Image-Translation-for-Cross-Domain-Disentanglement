@@ -16,7 +16,7 @@ import tensorflow as tf
 import tensorlayer as tl
 from tensorlayer.layers import *
 
-def BatchNorm(ni, pre, num):
+def Batch(ni, pre, num):
 	g_init = tf.random_normal_initializer(1.0, 0.02)
 	inputs = ni.outputs
 	tmp = tf.layers.batch_normalization(inputs, axis=3, epsilon=1e-5, momentum=0.1, training=True, gamma_initializer=g_init)
