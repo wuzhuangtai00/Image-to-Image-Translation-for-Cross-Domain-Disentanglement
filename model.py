@@ -239,6 +239,10 @@ def create_model(inputsX, inputsY, a):
 
     ######### OPTIMIZERS
 
+
+
+    
+    print('end here\n\n\n\n\n')
     with tf.name_scope("discriminatorX2Y_train"):
         discrimX2Y_tvars = [var for var in tf.trainable_variables() if var.name.startswith("discriminatorX2Y")]
         discrimX2Y_optim = tf.train.AdamOptimizer(a.lr, a.beta1)
@@ -332,7 +336,7 @@ def create_model(inputsX, inputsY, a):
 
     f1 = open('out.txt', 'w')
     for var in tf.trainable_variables():
-        f1.write(var)
+        f1.write(var.name)
 
 
 
