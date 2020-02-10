@@ -180,7 +180,7 @@ def create_model(inputsX, inputsY, a):
         differences = tf.reshape(__outputsX2Y,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsX, [-1,OUTPUT_DIM]) + (alpha*differences)
         with tf.variable_scope("discriminatorX2Y", reuse=tf.AUTO_REUSE):
-	        gradients = tf.gradients(create_discriminator(niX, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb1'), a, 'discriminatorX2Y_loss').outputs, [interpolates])[0]
+            gradients = tf.gradients(create_discriminator(niX, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb1'), a, 'discriminatorX2Y_loss').outputs, [interpolates])[0]
         slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1]))
         gradient_penalty = tf.reduce_mean((slopes-1.)**2)
         discrimX2Y_loss += LAMBDA*gradient_penalty
@@ -194,7 +194,7 @@ def create_model(inputsX, inputsY, a):
         differences = tf.reshape(__outputsY2X,[-1,OUTPUT_DIM])-tf.reshape(targetsY,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsY,[-1,OUTPUT_DIM]) + (alpha*differences)
         with tf.variable_scope("discriminatorY2X", reuse=tf.AUTO_REUSE):
-	        gradients = tf.gradients(create_discriminator(niY, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb2'), a, 'discriminatorY2X_loss').outputs, [interpolates])[0]
+            gradients = tf.gradients(create_discriminator(niY, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb2'), a, 'discriminatorY2X_loss').outputs, [interpolates])[0]
         slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1]))
         gradient_penalty = tf.reduce_mean((slopes-1.)**2)
         discrimY2X_loss += LAMBDA*gradient_penalty
@@ -208,7 +208,7 @@ def create_model(inputsX, inputsY, a):
         differences = tf.reshape(__outputs_exclusiveX2Y,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsX,[-1,OUTPUT_DIM]) + (alpha*differences)
         with tf.variable_scope("discriminator_exclusiveX2Y", reuse=tf.AUTO_REUSE):
-	        gradients = tf.gradients(create_discriminator(niX, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb3'),a, 'discriminator_exclusiveX2Y_loss').outputs, [interpolates])[0]
+            gradients = tf.gradients(create_discriminator(niX, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb3'),a, 'discriminator_exclusiveX2Y_loss').outputs, [interpolates])[0]
         slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1]))
         gradient_penalty = tf.reduce_mean((slopes-1.)**2)
         discrim_exclusiveX2Y_loss += LAMBDA*gradient_penalty
