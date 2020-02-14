@@ -1,7 +1,9 @@
 # Image-to-image translation for cross-domain disentanglement
 
 项目名称：Image-to-image translation for cross-domain disentanglement复现
+
 参考论文：Image-to-image translation for cross-domain disentanglement, NeurIPS 2018
+
 项目成员：吴瑾昭, 任轩笛, 顾宇晨, 邱元辰
 
 ### 要求
@@ -16,7 +18,9 @@
 ### 说明
 
 本项目用tensorlayer实现了论文中的encoder、decoder、exclusive_decoder和discriminator模块。
+
 模型参考自[论文作者的开源项目](https://github.com/agonzgarc/cross-domain-disen)的实现。
+
 训练部分沿用了[pix2pix](https://github.com/affinelayer/pix2pix-tensorflow/)，详见[这里](https://affinelayer.com/pix2pix/)。
 
 ### 训练结果
