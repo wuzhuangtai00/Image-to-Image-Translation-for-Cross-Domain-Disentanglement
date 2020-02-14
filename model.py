@@ -155,29 +155,14 @@ def create_model(inputsX, inputsY, a):
             predict_fake_exclusiveY2X = create_discriminator(niY, outputs_exclusiveY2X, a, 'fake_discriminator_exclusiveY2Y_discriminator_exclusiveY2X_reuse')
 
  ######### LOSSES
-
-    __auto_outputX = auto_outputX.outputs
-    __auto_outputY = auto_outputY.outputs
-    __outputsX2Y = outputsX2Y.outputs
-    __outputsY2X = outputsY2X.outputs
-    __outputs_exclusiveX2Y = outputs_exclusiveX2Y.outputs
-    __outputs_exclusiveY2X = outputs_exclusiveY2X.outputs
-    __predict_realX2Y = predict_realX2Y.outputs
-    __predict_realY2X = predict_realY2X.outputs
-    __predict_fakeX2Y = predict_fakeX2Y.outputs
-    __predict_fakeY2X = predict_fakeY2X.outputs
-    __predict_real_exclusiveX2Y = predict_real_exclusiveX2Y.outputs
-    __predict_real_exclusiveY2X = predict_real_exclusiveY2X.outputs
-    __predict_fake_exclusiveX2Y = predict_fake_exclusiveX2Y.outputs
-    __predict_fake_exclusiveY2X = predict_fake_exclusiveY2X.outputs
-
+ 
     with tf.name_scope("generatorX2Y_loss"):
-        genX2Y_loss_GAN = -tf.reduce_mean(__predict_fakeX2Y)
+        genX2Y_loss_GAN = -tf.reduce_mean(predict_fakeX2Y.outputs)
         genX2Y_loss = genX2Y_loss_GAN * a.gan_weight
     with tf.name_scope("discriminatorX2Y_loss"):
-        discrimX2Y_loss = tf.reduce_mean(__predict_fakeX2Y) - tf.reduce_mean(__predict_realX2Y)
+        discrimX2Y_loss = tf.reduce_mean(predict_fakeX2Y.outputs) - tf.reduce_mean(predict_realX2Y.outputs)
         alpha = tf.random_uniform(shape=[a.batch_size,1], minval=0., maxval=1.)
-        differences = tf.reshape(__outputsX2Y,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
+        differences = tf.reshape(outputsX2Y.outputs,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsX, [-1,OUTPUT_DIM]) + (alpha*differences)
         with tf.variable_scope("discriminatorX2Y", reuse=tf.AUTO_REUSE):
             gradients = tf.gradients(create_discriminator(niX, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb1'), a, 'discriminatorX2Y_loss').outputs, [interpolates])[0]
@@ -186,12 +171,12 @@ def create_model(inputsX, inputsY, a):
         discrimX2Y_loss += LAMBDA*gradient_penalty
 
     with tf.name_scope("generatorY2X_loss"):
-        genY2X_loss_GAN = -tf.reduce_mean(__predict_fakeY2X)
+        genY2X_loss_GAN = -tf.reduce_mean(predict_fakeY2X.outputs)
         genY2X_loss = genY2X_loss_GAN * a.gan_weight
     with tf.name_scope("discriminatorY2X_loss"):
-        discrimY2X_loss = tf.reduce_mean(__predict_fakeY2X) - tf.reduce_mean(__predict_realY2X)
+        discrimY2X_loss = tf.reduce_mean(predict_fakeY2X.outputs) - tf.reduce_mean(predict_realY2X.outputs)
         alpha = tf.random_uniform(shape=[a.batch_size,1], minval=0., maxval=1.)
-        differences = tf.reshape(__outputsY2X,[-1,OUTPUT_DIM])-tf.reshape(targetsY,[-1,OUTPUT_DIM])
+        differences = tf.reshape(outputsY2X.outputs,[-1,OUTPUT_DIM])-tf.reshape(targetsY,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsY,[-1,OUTPUT_DIM]) + (alpha*differences)
         with tf.variable_scope("discriminatorY2X", reuse=tf.AUTO_REUSE):
             gradients = tf.gradients(create_discriminator(niY, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb2'), a, 'discriminatorY2X_loss').outputs, [interpolates])[0]
@@ -200,12 +185,12 @@ def create_model(inputsX, inputsY, a):
         discrimY2X_loss += LAMBDA*gradient_penalty
 
     with tf.name_scope("generator_exclusiveX2Y_loss"):
-        gen_exclusiveX2Y_loss_GAN = -tf.reduce_mean(__predict_fake_exclusiveX2Y)
+        gen_exclusiveX2Y_loss_GAN = -tf.reduce_mean(predict_fake_exclusiveX2Y.outputs)
         gen_exclusiveX2Y_loss = gen_exclusiveX2Y_loss_GAN * a.gan_exclusive_weight
     with tf.name_scope("discriminator_exclusiveX2Y_loss"):
-        discrim_exclusiveX2Y_loss = tf.reduce_mean(__predict_fake_exclusiveX2Y) - tf.reduce_mean(__predict_real_exclusiveX2Y)
+        discrim_exclusiveX2Y_loss = tf.reduce_mean(predict_fake_exclusiveX2Y.outputs) - tf.reduce_mean(predict_real_exclusiveX2Y.outputs)
         alpha = tf.random_uniform(shape=[a.batch_size,1], minval=0., maxval=1.)
-        differences = tf.reshape(__outputs_exclusiveX2Y,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
+        differences = tf.reshape(outputs_exclusiveX2Y.outputs,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsX,[-1,OUTPUT_DIM]) + (alpha*differences)
         with tf.variable_scope("discriminator_exclusiveX2Y", reuse=tf.AUTO_REUSE):
             gradients = tf.gradients(create_discriminator(niX, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb3'),a, 'discriminator_exclusiveX2Y_loss').outputs, [interpolates])[0]
@@ -214,12 +199,12 @@ def create_model(inputsX, inputsY, a):
         discrim_exclusiveX2Y_loss += LAMBDA*gradient_penalty
 
     with tf.name_scope("generator_exclusiveY2X_loss"):
-        gen_exclusiveY2X_loss_GAN = -tf.reduce_mean(__predict_fake_exclusiveY2X)
+        gen_exclusiveY2X_loss_GAN = -tf.reduce_mean(predict_fake_exclusiveY2X.outputs)
         gen_exclusiveY2X_loss = gen_exclusiveY2X_loss_GAN * a.gan_exclusive_weight
     with tf.name_scope("discriminator_exclusiveY2X_loss"):
-        discrim_exclusiveY2X_loss = tf.reduce_mean(__predict_fake_exclusiveY2X) - tf.reduce_mean(__predict_real_exclusiveY2X)
+        discrim_exclusiveY2X_loss = tf.reduce_mean(predict_fake_exclusiveY2X.outputs) - tf.reduce_mean(predict_real_exclusiveY2X.outputs)
         alpha = tf.random_uniform(shape=[a.batch_size,1], minval=0., maxval=1.)
-        differences = tf.reshape(__outputs_exclusiveY2X,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
+        differences = tf.reshape(outputs_exclusiveY2X.outputs,[-1,OUTPUT_DIM])-tf.reshape(targetsX,[-1,OUTPUT_DIM])
         interpolates = tf.reshape(targetsX,[-1,OUTPUT_DIM]) + (alpha*differences)
         with tf.variable_scope("discriminator_exclusiveY2X", reuse=tf.AUTO_REUSE):
             gradients = tf.gradients(create_discriminator(niX, InputLayer(tf.reshape(interpolates,[-1,IMAGE_SIZE,IMAGE_SIZE,3]), name='albalb4'),a, 'discriminator_exclusiveY2X_loss').outputs, [interpolates])[0]
@@ -228,9 +213,9 @@ def create_model(inputsX, inputsY, a):
         discrim_exclusiveY2X_loss += LAMBDA*gradient_penalty
 
     with tf.name_scope("autoencoderX_loss"):
-        autoencoderX_loss = a.l1_weight*tf.reduce_mean(tf.abs(__auto_outputX-inputsX))
+        autoencoderX_loss = a.l1_weight*tf.reduce_mean(tf.abs(auto_outputX.outputs-inputsX))
     with tf.name_scope("autoencoderY_loss"):
-        autoencoderY_loss = a.l1_weight*tf.reduce_mean(tf.abs(__auto_outputY-inputsY))
+        autoencoderY_loss = a.l1_weight*tf.reduce_mean(tf.abs(auto_outputY.outputs-inputsY))
     with tf.name_scope("feat_recon_loss"):
         feat_recon_loss = a.l1_weight*tf.reduce_mean(tf.abs(sR_X2Y.outputs-sR_Y2X.outputs))
 

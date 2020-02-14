@@ -22,8 +22,7 @@ def _reverse_grad(unused_op, grad):
 
 def Batch(ni, pre, num):
 	g_init = tf.random_normal_initializer(1.0, 0.02)
-	inputs = ni.outputs
-	tmp = tf.layers.batch_normalization(inputs, axis=3, epsilon=1e-5, momentum=0.1, training=True, gamma_initializer=g_init)
+	tmp = tf.layers.batch_normalization(ni.outputs, axis=3, epsilon=1e-5, momentum=0.1, training=True, gamma_initializer=g_init)
 	tmp = tf.nn.relu(tmp)
 	return InputLayer(tmp, name=pre+'Batch'+num)
 
